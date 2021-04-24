@@ -119,6 +119,66 @@ jobs:
       - run: ant -emacs upload-native
         name: Upload artifacts
 
+  freebsd:
+    name: FreeBSD
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ARCH: [x64, arm64]
+        include:
+          - ARCH: x64
+            PACKAGES: gcc-4.8 g++-4.8 gcc-4.9 g++-4.9 xorg-dev libgtk-3-dev libglu-dev libgl1-mesa-glx libx11-dev
+            NATIVE_PARAMS: -Dgcc.libpath.opengl=/usr/lib/x86_64-linux-gnu/mesa
+          - ARCH: arm64
+            PACKAGES: gcc-4.8-aarch64-linux-gnu g++-4.8-aarch64-linux-gnu gcc-4.9-aarch64-linux-gnu g++-4.9-aarch64-linux-gnu libc6-dev-arm64-cross
+            CROSS_ARCH: arm64
+            CROSS_PACKAGES: libgtk-3-dev:arm64 libglu-dev:arm64 libgl1-mesa-glx:arm64 libx11-dev:arm64
+            NATIVE_PARAMS: -Dgcc.libpath.opengl=/usr/lib/aarch64-linux-gnu/mesa
+    env:
+      JAVA_HOME: jdk8
+      LWJGL_BUILD_TYPE: nightly
+      LWJGL_BUILD_ARCH: ${{matrix.ARCH}}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 3
+      - uses: vmactions/freebsd-vm@v0.1.2
+        usesh: true
+        prepare: pkg install -y curl
+      - run: |
+          freebsd-version
+          sudo apt-get update
+          sudo apt-get -yq install ${{matrix.PACKAGES}}
+          curl https://cdn.azul.com/zulu/bin/zulu8.52.0.23-ca-fx-jdk8.0.282-linux_x64.tar.gz --output jdk8.tar.gz
+          mkdir jdk8
+          tar xf jdk8.tar.gz -C jdk8 --strip-components 1
+        name: Install dependencies
+      - run: |
+          sudo sed -i 's/deb http/deb [arch=amd64,i386] http/' /etc/apt/sources.list
+          sudo grep "ubuntu.com/ubuntu" /etc/apt/sources.list | sudo tee /etc/apt/sources.list.d/ports.list
+          sudo sed -i 's/amd64,i386/armhf,arm64/' /etc/apt/sources.list.d/ports.list
+          sudo sed -i 's#http://.*/ubuntu#http://ports.ubuntu.com/ubuntu-ports#' /etc/apt/sources.list.d/ports.list
+          sudo dpkg --add-architecture ${{matrix.CROSS_ARCH}}
+          sudo apt-get clean
+          sudo apt-get update || true
+        if: contains(matrix.ARCH, 'x64') != true
+        name: Prepare cross-compilation
+      - run: sudo apt-get -yq -f --allow-unauthenticated --no-install-suggests --no-install-recommends install ${{matrix.CROSS_PACKAGES}} -o Dpkg::Options::="--force-overwrite"
+        if: contains(matrix.ARCH, 'x64') != true
+        name: Install cross-compilation dependencies
+      - run: ant -emacs hydrate-kotlinc clean-generated generate
+        name: Hydrate generator
+      - run: ant -emacs compile
+        name: Build Java
+      - run: ant -emacs compile-native -Dgcc.version=4.8 ${{matrix.NATIVE_PARAMS}}
+        name: Build native
+      - run: ant -emacs tests
+        name: Run tests
+#        if: contains(matrix.ARCH, 'x64')
+#      - run: ant -emacs upload-native
+#        name: Upload artifacts
+
   windows:
     name: Windows
     runs-on: windows-latest
