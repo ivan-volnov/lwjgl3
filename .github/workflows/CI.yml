@@ -136,7 +136,7 @@ jobs:
           mem: 4096
           envs: 'LWJGL_BUILD_TYPE LWJGL_BUILD_ARCH'
           prepare: |
-            pkg install -y apache-ant
+            pkg install -y apache-ant git
             mount -t fdescfs fdesc /dev/fd
             mount -t procfs proc /proc
           run: |
