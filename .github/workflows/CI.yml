@@ -130,7 +130,7 @@ jobs:
         with:
           fetch-depth: 3
       - uses: vmactions/freebsd-vm@v0.1.3
-        name: Install dependencies
+        name: Build on FreeBSD
         with:
           usesh: true
           mem: 4096
@@ -140,18 +140,11 @@ jobs:
             mount -t fdescfs fdesc /dev/fd
             mount -t procfs proc /proc
           run: |
-            pwd
-            ls -lah
-            whoami
-            env
-            freebsd-version
             ant -emacs hydrate-kotlinc clean-generated generate
             ant -emacs compile
             ant -emacs compile-native
             ant -emacs tests
-
-#            xorg gtk3 libGLU mesa-libs libX11
-#            ant -emacs upload-native
+            ant -emacs upload-native
 
   windows:
     name: Windows
