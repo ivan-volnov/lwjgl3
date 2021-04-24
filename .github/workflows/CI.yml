@@ -135,7 +135,7 @@ jobs:
         with:
           usesh: true
           mem: 4096
-          # xorg gtk3 libGLU mesa-libs libX11
+          envs: 'JAVA_HOME LWJGL_BUILD_TYPE LWJGL_BUILD_ARCH'
           prepare: pkg install -y curl
           run: |
             pwd
@@ -143,14 +143,12 @@ jobs:
             whoami
             env
             freebsd-version
-#            curl https://cdn.azul.com/zulu/bin/zulu8.52.0.23-ca-fx-jdk8.0.282-linux_x64.tar.gz --output jdk8.tar.gz
-#            mkdir jdk8
-#            tar xf jdk8.tar.gz -C jdk8 --strip-components 1
             ant -emacs hydrate-kotlinc clean-generated generate
             ant -emacs compile
-#            ant -emacs compile-native -Dgcc.version=4.8 ${{matrix.NATIVE_PARAMS}}
             ant -emacs compile-native
             ant -emacs tests
+
+#            xorg gtk3 libGLU mesa-libs libX11
 #            ant -emacs upload-native
 
   windows:
