@@ -122,19 +122,10 @@ jobs:
   freebsd:
     name: FreeBSD
     runs-on: macos-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        ARCH: [x64]
-        include:
-          - ARCH: x64
-            PACKAGES: xorg gtk3 libGLU mesa-libs libX11
-            NATIVE_PARAMS:
-                #            NATIVE_PARAMS: -Dgcc.libpath.opengl=/usr/lib/x86_64-linux-gnu/mesa
     env:
       JAVA_HOME: jdk8
       LWJGL_BUILD_TYPE: nightly
-      LWJGL_BUILD_ARCH: ${{matrix.ARCH}}
+      LWJGL_BUILD_ARCH: x64
     steps:
       - uses: actions/checkout@v2
         with:
@@ -144,6 +135,7 @@ jobs:
         with:
           usesh: true
           mem: 4096
+          # xorg gtk3 libGLU mesa-libs libX11
           prepare: pkg install -y curl
           run: |
             pwd
@@ -151,21 +143,16 @@ jobs:
             whoami
             env
             freebsd-version
-            sudo apt-get update
-            sudo apt-get -yq install ${{matrix.PACKAGES}}
-            curl https://cdn.azul.com/zulu/bin/zulu8.52.0.23-ca-fx-jdk8.0.282-linux_x64.tar.gz --output jdk8.tar.gz
-            mkdir jdk8
-            tar xf jdk8.tar.gz -C jdk8 --strip-components 1
-          run: ant -emacs hydrate-kotlinc clean-generated generate
-            name: Hydrate generator
-      - run: ant -emacs compile
-        name: Build Java
-      - run: ant -emacs compile-native -Dgcc.version=4.8 ${{matrix.NATIVE_PARAMS}}
-        name: Build native
-      - run: ant -emacs tests
-        name: Run tests
-#      - run: ant -emacs upload-native
-#        name: Upload artifacts
+#            curl https://cdn.azul.com/zulu/bin/zulu8.52.0.23-ca-fx-jdk8.0.282-linux_x64.tar.gz --output jdk8.tar.gz
+#            mkdir jdk8
+#            tar xf jdk8.tar.gz -C jdk8 --strip-components 1
+
+            ant -emacs hydrate-kotlinc clean-generated generate
+            ant -emacs compile
+#            ant -emacs compile-native -Dgcc.version=4.8 ${{matrix.NATIVE_PARAMS}}
+            ant -emacs compile-native
+            ant -emacs tests
+#            ant -emacs upload-native
 
   windows:
     name: Windows
