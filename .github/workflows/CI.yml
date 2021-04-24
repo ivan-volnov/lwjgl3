@@ -120,7 +120,7 @@ jobs:
         name: Upload artifacts
 
   freebsd:
-    name: FreeBSD
+    name: FreeBSD (x64)
     runs-on: macos-latest
     env:
       JAVA_HOME: jdk8
@@ -136,7 +136,7 @@ jobs:
           usesh: true
           mem: 4096
           envs: 'JAVA_HOME LWJGL_BUILD_TYPE LWJGL_BUILD_ARCH'
-          prepare: pkg install -y curl
+          prepare: pkg install -y apache-ant
           run: |
             pwd
             ls -lah
