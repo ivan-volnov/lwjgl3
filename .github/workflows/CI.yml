@@ -143,14 +143,17 @@ jobs:
         with:
           usesh: true
           prepare: pkg install -y curl
-      - run: |
-          usesh: true
-          freebsd-version
-          sudo apt-get update
-          sudo apt-get -yq install ${{matrix.PACKAGES}}
-          curl https://cdn.azul.com/zulu/bin/zulu8.52.0.23-ca-fx-jdk8.0.282-linux_x64.tar.gz --output jdk8.tar.gz
-          mkdir jdk8
-          tar xf jdk8.tar.gz -C jdk8 --strip-components 1
+        - run: |
+            pwd
+            ls -lah
+            whoami
+            env
+            freebsd-version
+            sudo apt-get update
+            sudo apt-get -yq install ${{matrix.PACKAGES}}
+            curl https://cdn.azul.com/zulu/bin/zulu8.52.0.23-ca-fx-jdk8.0.282-linux_x64.tar.gz --output jdk8.tar.gz
+            mkdir jdk8
+            tar xf jdk8.tar.gz -C jdk8 --strip-components 1
         name: Install dependencies
       - run: ant -emacs hydrate-kotlinc clean-generated generate
         name: Hydrate generator
