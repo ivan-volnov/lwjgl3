@@ -140,11 +140,11 @@ jobs:
             mount -t fdescfs fdesc /dev/fd
             mount -t procfs proc /proc
           run: |
-            ant -emacs hydrate-kotlinc clean-generated generate
-            ant -emacs compile
-            ant -emacs compile-native
-            ant -emacs tests
-            ant -emacs upload-native
+            ant -emacs -Dplatform=freebsd hydrate-kotlinc clean-generated generate
+            ant -emacs -Dplatform=freebsd compile
+            ant -emacs -Dplatform=freebsd compile-native
+            ant -emacs -Dplatform=freebsd tests
+            ant -emacs -Dplatform=freebsd upload-native
 
   windows:
     name: Windows
