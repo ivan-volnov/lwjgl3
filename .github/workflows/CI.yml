@@ -123,7 +123,6 @@ jobs:
     name: FreeBSD (x64)
     runs-on: macos-latest
     env:
-      JAVA_HOME: jdk8
       LWJGL_BUILD_TYPE: nightly
       LWJGL_BUILD_ARCH: x64
     steps:
@@ -135,8 +134,10 @@ jobs:
         with:
           usesh: true
           mem: 4096
-          envs: 'JAVA_HOME LWJGL_BUILD_TYPE LWJGL_BUILD_ARCH'
+          envs: 'LWJGL_BUILD_TYPE LWJGL_BUILD_ARCH'
           prepare: pkg install -y apache-ant
+            mount -t fdescfs fdesc /dev/fd
+            mount -t procfs proc /proc
           run: |
             pwd
             ls -lah
